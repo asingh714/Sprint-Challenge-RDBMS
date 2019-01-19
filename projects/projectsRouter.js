@@ -72,6 +72,46 @@ router.post("/", (req, res) => {
     });
 });
 
+// PUT - UPDATE
+router.put("/:id", (req, res) => {
+    const id = req.params.id;
+    const changes = req.body;
+
+    if (!changes.name || !changes.description) {
+      res
+        .status(400)
+        .json({ error: "Please provide a name and description for the project." });
+    }
+  
+    db("projects")
+      .where({ id: id })
+      .update(changes)
+      .then(project => {
+        res.status(200).json(project);
+      })
+      .catch(err => {
+        res.status(500).json({
+          error: "The project information could not be modified."
+        });
+      });
+  });
+  
+  // DELETE
+  router.delete("/:id", (req, res) => {
+    const id = req.params.id;
+  
+    db("projects")
+      .where({ id: id })
+      .del()
+      .then(count => {
+        res.status(200).json(count);
+      })
+      .catch(err => {
+        res.status(500).json({ error: "The project could not be removed." });
+      });
+  });
+
+
 
 
 module.exports = router;
