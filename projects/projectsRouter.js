@@ -44,4 +44,34 @@ router.get("/:id", (req, res) => {
     });
 });
 
+// POST PROJECT
+router.post("/", (req, res) => {
+  const project = req.body;
+
+  if (!project.name) {
+    res.status(400).json({
+      error: "Please provide a name for the project."
+    });
+  }
+
+  if (!project.description) {
+    res.status(400).json({
+      error: "Please provide a description for the project."
+    });
+  }
+
+  db("projects")
+    .insert(project)
+    .then(result => {
+      res.status(201).json(result);
+    })
+    .catch(err => {
+      res.status(500).json({
+        error: "There was an error while saving the project to the database."
+      });
+    });
+});
+
+
+
 module.exports = router;
