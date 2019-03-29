@@ -68,4 +68,61 @@ router.get("/:id", (req, res) => {
     });
 });
 
+router.put("/:id", (req, res) => {
+  const { id } = req.params;
+  const changes = req.body;
+
+  if (
+    !changes.description ||
+    !changes.notes ||
+    changes.is_completed === undefined ||
+    changes.project_id === undefined
+  ) {
+    res.status(400).json({
+      error:
+        "Please provide a description, notes, is_completed and project_id for the action."
+    });
+  } else {
+    db("actions")
+      .where({ id })
+      .update(changes)
+      .then(count => {
+        if (count > 0) {
+          res.status(200).json(count);
+        } else {
+          res.status(404).json({
+            message: "The action with the specified ID does not exist."
+          });
+        }
+      })
+      .catch(error => {
+        res.status(500).json({
+          error: "The action information could not be modified."
+        });
+      });
+  }
+});
+
+router.delete("/:id", (req, res) => {
+  const { id } = req.params;
+
+  db("actions")
+    .where({ id })
+    .del()
+    .then(count => {
+      if (count > 0) {
+        res.status(200).json(count);
+      } else {
+        res.status(404).json({
+          message: "The action with the specified ID does not exist."
+        });
+      }
+    })
+    .catch(error => {
+      res.status(500).json({
+        error: "The action could not be removed."
+      });
+    });
+});
+
 module.exports = router;
