@@ -72,4 +72,40 @@ router.get("/:id", (req, res) => {
     });
 });
 
+router.put("/:id", (req, res) => {
+  const { id } = req.params;
+  const changes = req.body;
+
+  if (
+    !changes.name ||
+    !changes.description ||
+    changes.is_completed === undefined
+  ) {
+    res.status(400).json({
+      error:
+        "Please provide a name, description and is_completed for the project."
+    });
+  } else {
+    db("projects")
+      .where({ id })
+      .update(changes)
+      .then(count => {
+        if (count > 0) {
+          res.status(200).json(count);
+        } else {
+          res
+            .status(404)
+            .json({
+              message: "The project with the specified ID does not exist."
+            });
+        }
+      })
+      .catch(error => {
+        res.status(500).json({
+          error: "The project information could not be modified."
+        });
+      });
+  }
+});
+
 module.exports = router;
