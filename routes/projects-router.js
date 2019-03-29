@@ -16,7 +16,11 @@ router.get("/", (req, res) => {
 router.post("/", (req, res) => {
   const project = req.body;
 
-  if (!project.name || !project.description || project.is_completed === undefined) {
+  if (
+    !project.name ||
+    !project.description ||
+    project.is_completed === undefined
+  ) {
     res.status(400).json({
       error:
         "Please provide a name, description and is_completed for the project."
@@ -40,6 +44,32 @@ router.post("/", (req, res) => {
           });
       });
   }
+});
+
+router.get("/:id", (req, res) => {
+  const { id } = req.params;
+  db("projects")
+    .where({ id })
+    .first()
+    .then(project => {
+      if (project) {
+        db("actions")
+          .where({ project_id: id })
+          .then(actions => {
+            project.actions = actions;
+            res.status(200).json(project);
+          });
+      } else {
+        res
+          .status(404)
+          .json({ error: "The project with the specified ID does not exist." });
+      }
+    })
+    .catch(error => {
+      res.status(500).json({
+        error: "The project with the specified ID could not be retrieved."
+      });
+    });
 });
 
 module.exports = router;
